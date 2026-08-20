@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a generic package-auditing capability.
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Generic use cases and evidence
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Why this belongs in the generic tool
+    validations:
+      required: true

@@ -1,0 +1,21 @@
+name: Package audit example
+on:
+  pull_request:
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: MasterRook1e/miniapp-packguard@v0
+        with:
+          root: miniprogram
+          config: miniapp-packguard.config.json
+          report-dir: .packguard-reports
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .packguard-reports/report.sarif
