@@ -1,0 +1,137 @@
+name: Publish GitHub release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "releases/v*.md"
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: Release notes path, for example releases/v0.1.0.md
+        required: true
+        default: releases/v0.1.0.md
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: github-release-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Verify, attest, and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release request
+        id: release
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          DISPATCH_NOTES: ${{ inputs.release_notes }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            notes="$DISPATCH_NOTES"
+          else
+            mapfile -t requests < <(git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" -- 'releases/v*.md')
+            if [[ "${#requests[@]}" -ne 1 ]]; then
+              printf 'Expected exactly one changed release-notes file; found %s.\n' "${#requests[@]}" >&2
+              printf '%s\n' "${requests[@]}" >&2
+              exit 1
+            fi
+            notes="${requests[0]}"
+          fi
+
+          if [[ ! -f "$notes" ]]; then
+            printf 'Release notes do not exist: %s\n' "$notes" >&2
+            exit 1
+          fi
+
+          tag="$(basename "$notes" .md)"
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            printf 'Release-notes filename must be semantic version vMAJOR.MINOR.PATCH.md: %s\n' "$notes" >&2
+            exit 1
+          fi
+
+          node -e '
+            const fs = require("node:fs");
+            const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            const tag = process.argv[1];
+            if (`v${pkg.version}` !== tag) {
+              console.error(`package.json version ${pkg.version} does not match ${tag}`);
+              process.exit(1);
+            }
+          ' "$tag"
+
+          printf 'notes=%s\n' "$notes" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install without lifecycle scripts
+        run: npm ci --ignore-scripts
+
+      - name: Run complete verification
+        run: npm run verify
+
+      - name: Build release package and checksums
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          pack_json="$(npm pack --json --ignore-scripts)"
+          tarball="$(node -e '
+            const fs = require("node:fs");
+            const result = JSON.parse(fs.readFileSync(0, "utf8"));
+            if (!result[0]?.filename) process.exit(1);
+            process.stdout.write(result[0].filename);
+          ' <<< "$pack_json")"
+          test -s "$tarball"
+          sha256sum "$tarball" > SHA256SUMS.txt
+          printf 'tarball=%s\n' "$tarball" >> "$GITHUB_OUTPUT"
+
+      - name: Generate build provenance
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: ${{ steps.package.outputs.tarball }}
+
+      - name: Create immutable GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          NOTES: ${{ steps.release.outputs.notes }}
+          TARBALL: ${{ steps.package.outputs.tarball }}
+          ATTESTATION_BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            printf 'Release already exists: %s\n' "$TAG" >&2
+            exit 1
+          fi
+
+          gh release create "$TAG" \
+            "$TARBALL" \
+            SHA256SUMS.txt \
+            "$ATTESTATION_BUNDLE" \
+            --target "$GITHUB_SHA" \
+            --title "MiniApp PackGuard $TAG" \
+            --notes-file "$NOTES" \
+            --latest
+
+          gh release view "$TAG" --json tagName,url,isDraft,isPrerelease
