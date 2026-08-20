@@ -1,21 +1,28 @@
-name: Package audit example
+name: Action smoke test
+
 on:
+  push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
 permissions:
   contents: read
-  security-events: write
+
 jobs:
-  audit:
+  audit-example:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: MasterRook1e/miniapp-packguard@v0
+      - name: Run the checked-out composite action
+        uses: ./
         with:
-          root: miniprogram
-          config: miniapp-packguard.config.json
+          root: examples/demo/miniprogram
+          config: examples/demo/miniapp-packguard.config.json
           report-dir: .packguard-reports
-      - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: .packguard-reports/report.sarif
+      - name: Validate generated reports
+        shell: bash
+        run: |
+          test -s .packguard-reports/report.json
+          test -s .packguard-reports/report.md
+          test -s .packguard-reports/report.sarif
