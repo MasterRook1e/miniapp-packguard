@@ -1,0 +1,40 @@
+name: Publish source tree
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".bootstrap/**"
+      - ".github/workflows/bootstrap.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild clean source history
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .bootstrap/part-* | base64 --decode > /tmp/source.zip
+          rm -rf /tmp/source-tree
+          mkdir -p /tmp/source-tree
+          unzip -q /tmp/source.zip -d /tmp/source-tree
+
+          git checkout --orphan published
+          git rm -rf .
+          shopt -s dotglob nullglob
+          cp -a /tmp/source-tree/miniapp-packguard/. .
+
+          git config user.name "MasterRook1e"
+          git config user.email "151005963+MasterRook1e@users.noreply.github.com"
+          git add -- .editorconfig .github .gitignore AGENTS.md CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md LICENSE README.md ROADMAP.md SECURITY.md action.yml bin docs examples package-lock.json package.json schemas scripts src tests
+          git commit -m "feat: publish initial open-source release"
+          git push --force origin HEAD:main
