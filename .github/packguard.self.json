@@ -1,21 +1,55 @@
 {
   "$schema": "../schemas/config.schema.json",
+  "version": 1,
+  "root": ".",
+  "mode": "git",
   "include": ["**/*"],
-  "exclude": [".git/**", "node_modules/**", "coverage/**", "*.tgz"],
+  "exclude": [
+    ".git/**",
+    "node_modules/**",
+    "coverage/**",
+    ".packguard-self/**",
+    "*.tgz"
+  ],
+  "requiredFiles": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "action.yml",
+    "bin/miniapp-packguard.mjs",
+    "src/index.mjs",
+    "schemas/config.schema.json"
+  ],
+  "references": {
+    "enabled": false,
+    "severity": "error",
+    "ignore": [],
+    "extraPatterns": [],
+    "maxTextFileBytes": 2097152
+  },
+  "duplicates": {
+    "enabled": true,
+    "scope": "assets",
+    "minBytes": 1,
+    "severity": "error"
+  },
   "budgets": {
-    "totalBytes": 524288,
-    "maxFileBytes": 131072,
+    "totalBytes": { "limit": 524288, "severity": "error" },
+    "maxFileBytes": { "limit": 131072, "severity": "error" },
     "groups": [
-      { "name": "runtime", "patterns": ["src/**", "bin/**"], "maxBytes": 196608 },
-      { "name": "tests-and-fixtures", "patterns": ["tests/**", "examples/**"], "maxBytes": 131072 }
+      {
+        "name": "runtime",
+        "patterns": ["src/**", "bin/**"],
+        "limit": 196608,
+        "severity": "error"
+      },
+      {
+        "name": "tests-and-fixtures",
+        "patterns": ["tests/**", "examples/**"],
+        "limit": 131072,
+        "severity": "error"
+      }
     ]
   },
-  "policy": {
-    "failOnUnusedAssets": true,
-    "failOnMissingReferences": true,
-    "failOnDuplicateAssets": true,
-    "failOnCaseCollisions": true,
-    "failOnUnicodeCollisions": true,
-    "failOnExternalSymlinks": true
-  }
+  "failLevel": "error"
 }

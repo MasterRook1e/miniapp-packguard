@@ -33,7 +33,7 @@ for (const file of files) {
 }
 
 const pkg = JSON.parse(await fs.readFile(path.join(ROOT, "package.json"), "utf8"));
-if (pkg.version !== "0.1.0") failures.push("package version mismatch");
+if (pkg.version !== "0.1.1") failures.push("package version mismatch");
 if (pkg.license !== "MIT") failures.push("package must be MIT licensed");
 if (!pkg.bin?.["miniapp-packguard"]) failures.push("CLI bin is missing");
 

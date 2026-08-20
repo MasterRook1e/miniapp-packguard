@@ -1,22 +1,50 @@
 name: Self audit
+
 on:
   push:
     branches: [main]
   pull_request:
+
 permissions:
   contents: read
+
 jobs:
   packguard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+
+      - run: npm ci --ignore-scripts
+
       - name: Audit this repository with PackGuard
-        run: node ./bin/miniapp-packguard.mjs --root . --config .github/packguard.self.json --format markdown --output packguard-report.md
+        run: >-
+          node ./bin/miniapp-packguard.mjs audit
+          --project-root .
+          --config .github/packguard.self.json
+          --format markdown
+          --out .packguard-self/report.md
+          --report-dir .packguard-self
+
       - name: Publish job summary
         if: always()
-        run: cat packguard-report.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+        run: |
+          if [[ -s .packguard-self/report.md ]]; then
+            cat .packguard-self/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload self-audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packguard-self-audit
+          path: .packguard-self
+          if-no-files-found: warn
+          retention-days: 14

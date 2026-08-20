@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/ci.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/ci.yml)
 [![Action smoke test](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/example.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/example.yml)
+[![Self audit](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/self-audit.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/self-audit.yml)
 [![Maintainer contracts](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/maintainer-contracts.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/maintainer-contracts.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -134,7 +135,7 @@ console.log(report.summary);
 
 The repository tests both the source checkout and the exact npm tarball shape. `npm run verify` validates syntax and formatting, executes the unit suite and demo, checks the package manifest, packs an allowlisted tarball, installs it into a temporary clean consumer, runs the installed CLI, verifies its report, and imports the installed library API.
 
-The same verification runs on Node.js 20 and 22 across Linux, Windows, and macOS. A checked-out composite-action smoke test and CodeQL analysis run independently. See [docs/RELEASE_ASSURANCE.md](docs/RELEASE_ASSURANCE.md) for the evidence boundary and remaining release steps.
+The same verification runs on Node.js 20 and 22 across Linux, Windows, and macOS. A checked-out composite-action smoke test, repository self-audit, and CodeQL analysis run independently. See [docs/RELEASE_ASSURANCE.md](docs/RELEASE_ASSURANCE.md) and [docs/SELF_AUDIT.md](docs/SELF_AUDIT.md) for the evidence boundaries.
 
 ## Design boundaries
 
@@ -142,7 +143,7 @@ PackGuard does not compile vendor templates, emulate devices, infer runtime reac
 
 ## Status
 
-`0.1.0` is an initial public-ready implementation. The code includes tests, a zero-dependency CLI, JSON Schema, SARIF, a composite GitHub Action, packed-tarball consumer validation, path-aware maintainer policy, and a three-platform CI matrix. It has not yet been published to npm, and no third-party adoption or download count is claimed.
+`0.1.1` repairs and hardens public self-auditing while retaining the zero-dependency CLI, JSON Schema, SARIF, composite GitHub Action, packed-tarball consumer validation, path-aware maintainer policy, and three-platform CI matrix. It has not yet been published to npm, and no third-party adoption or download count is claimed.
 
 ## License
 

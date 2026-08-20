@@ -13,15 +13,16 @@ jobs:
     name: Review evidence contract
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out trusted base policy
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
 
       - name: Evaluate contracts
-        uses: MasterRook1e/maintainer-contracts@3d73d62e75d922d9f5022f886b5b1092419412fa
+        uses: MasterRook1e/maintainer-contracts@c09ea3fa4b3b85a722639b9638e8dba14522f300
         with:
           config: maintainer-contracts.config.json
+          token: ${{ github.token }}
           report-dir: .maintainer-contracts
           github-annotations: "true"
 

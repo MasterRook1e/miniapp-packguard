@@ -1,10 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.1.1
 
-- Added a clean packed-tarball consumer test that validates the npm file allowlist,
-  installs the generated package into a temporary project, runs the installed CLI, and
-  imports the installed library API on every supported CI platform.
+- repaired and hardened the repository's self-audit workflow
+- replaced a non-existent CLI flag with the supported deterministic report outputs
+- added a schema-valid repository policy with package budgets, required files, collision checks, duplicate detection, and artifact retention
+- documented why synthetic reference fixtures are verified by tests rather than the repository-wide reference graph
+- removed temporary bootstrap transport data and duplicate issue forms
+- retained clean packed-tarball consumer verification on every supported CI platform
 
 ## 0.1.0
 

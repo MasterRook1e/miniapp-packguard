@@ -1,6 +1,7 @@
 node_modules/
 coverage/
 .packguard-reports/
+.packguard-self/
 .packguard-baseline.json
 *.tgz
 .DS_Store
