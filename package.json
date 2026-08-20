@@ -24,7 +24,7 @@
   },
   "scripts": {
     "lint": "node scripts/lint.mjs",
-    "test": "node --test",
+    "test": "node --test tests/audit.test.mjs tests/baseline.test.mjs tests/cli.test.mjs tests/glob.test.mjs tests/reporters.test.mjs",
     "smoke": "node bin/miniapp-packguard.mjs audit --project-root examples/demo --config miniapp-packguard.config.json --format console",
     "pack:check": "npm pack --dry-run --ignore-scripts",
     "pack:test": "node scripts/test-packed-package.mjs",
