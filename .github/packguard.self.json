@@ -1,0 +1,21 @@
+{
+  "$schema": "../schemas/config.schema.json",
+  "include": ["**/*"],
+  "exclude": [".git/**", "node_modules/**", "coverage/**", "*.tgz"],
+  "budgets": {
+    "totalBytes": 524288,
+    "maxFileBytes": 131072,
+    "groups": [
+      { "name": "runtime", "patterns": ["src/**", "bin/**"], "maxBytes": 196608 },
+      { "name": "tests-and-fixtures", "patterns": ["tests/**", "examples/**"], "maxBytes": 131072 }
+    ]
+  },
+  "policy": {
+    "failOnUnusedAssets": true,
+    "failOnMissingReferences": true,
+    "failOnDuplicateAssets": true,
+    "failOnCaseCollisions": true,
+    "failOnUnicodeCollisions": true,
+    "failOnExternalSymlinks": true
+  }
+}
