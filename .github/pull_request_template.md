@@ -4,6 +4,8 @@
 
 ## Rule IDs or report schema impact
 
+## Security impact
+
 ## Validation
 
 - [ ] `npm run verify`
