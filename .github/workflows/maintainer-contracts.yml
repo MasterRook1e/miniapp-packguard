@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Evaluate contracts
-        uses: MasterRook1e/maintainer-contracts@24470d6a8ea16951b5d8f00aeb26521aca76191e
+        uses: MasterRook1e/maintainer-contracts@3d73d62e75d922d9f5022f886b5b1092419412fa
         with:
           config: maintainer-contracts.config.json
           report-dir: .maintainer-contracts
