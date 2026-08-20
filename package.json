@@ -1,0 +1,52 @@
+{
+  "name": "miniapp-packguard",
+  "version": "0.1.0",
+  "description": "Dependency-free package, asset, duplicate, collision, and regression auditing for mini apps.",
+  "type": "module",
+  "bin": {
+    "miniapp-packguard": "bin/miniapp-packguard.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./config-schema": "./schemas/config.schema.json"
+  },
+  "files": [
+    "action.yml",
+    "bin",
+    "schemas",
+    "src",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test",
+    "smoke": "node bin/miniapp-packguard.mjs audit --project-root examples/demo --config miniapp-packguard.config.json --format console",
+    "pack:check": "npm pack --dry-run --ignore-scripts",
+    "verify": "npm run lint && npm test && npm run smoke && npm run pack:check"
+  },
+  "keywords": [
+    "miniapp",
+    "miniprogram",
+    "wechat",
+    "package-size",
+    "asset-audit",
+    "ci",
+    "sarif",
+    "static-analysis"
+  ],
+  "author": "MasterRook1e",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MasterRook1e/miniapp-packguard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MasterRook1e/miniapp-packguard/issues"
+  },
+  "homepage": "https://github.com/MasterRook1e/miniapp-packguard#readme"
+}

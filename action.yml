@@ -1,0 +1,35 @@
+name: MiniApp PackGuard
+description: Audit mini-app package size, assets, duplicates, path collisions, and regression budgets.
+author: MasterRook1e
+branding:
+  icon: shield
+  color: blue
+inputs:
+  root:
+    description: Package root relative to the checked-out repository.
+    required: false
+    default: miniprogram
+  config:
+    description: Configuration path relative to the checked-out repository.
+    required: false
+    default: miniapp-packguard.config.json
+  fail-level:
+    description: note, warning, error, or off.
+    required: false
+    default: error
+  report-dir:
+    description: Directory for JSON, Markdown, and SARIF reports.
+    required: false
+    default: .packguard-reports
+runs:
+  using: composite
+  steps:
+    - name: Run MiniApp PackGuard
+      shell: bash
+      run: >-
+        node "$GITHUB_ACTION_PATH/bin/miniapp-packguard.mjs" audit
+        --project-root "$GITHUB_WORKSPACE"
+        --config "${{ inputs.config }}"
+        --root "${{ inputs.root }}"
+        --fail-level "${{ inputs.fail-level }}"
+        --report-dir "${{ inputs.report-dir }}"

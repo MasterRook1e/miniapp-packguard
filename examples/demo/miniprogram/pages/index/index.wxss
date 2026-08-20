@@ -1,0 +1,4 @@
+.page {
+  padding: 32rpx;
+  background-image: url("/images/icon.svg");
+}

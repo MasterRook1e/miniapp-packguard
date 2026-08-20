@@ -1,7 +1,7 @@
 node_modules/
 coverage/
-*.log
+.packguard-reports/
+.packguard-baseline.json
 *.tgz
 .DS_Store
-.audit/
-miniapp-packguard-report.*
+Thumbs.db

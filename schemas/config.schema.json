@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/MasterRook1e/miniapp-packguard/main/schemas/config.schema.json",
+  "title": "MiniApp PackGuard configuration",
+  "type": "object",
+  "required": ["version", "root"],
+  "properties": {
+    "version": { "const": 1 },
+    "root": { "type": "string", "minLength": 1 },
+    "mode": { "enum": ["git", "fs"] },
+    "include": { "type": "array", "items": { "type": "string" } },
+    "exclude": { "type": "array", "items": { "type": "string" } },
+    "followSymlinks": { "type": "boolean" },
+    "textExtensions": { "type": "array", "items": { "type": "string" } },
+    "assetExtensions": { "type": "array", "items": { "type": "string" } },
+    "aliases": { "type": "object", "additionalProperties": { "type": "string" } },
+    "requiredFiles": { "type": "array", "items": { "type": "string" } },
+    "failLevel": { "enum": ["note", "warning", "error", "off"] }
+  },
+  "additionalProperties": true
+}

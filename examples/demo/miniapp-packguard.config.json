@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/config.schema.json",
+  "version": 1,
+  "root": "miniprogram",
+  "mode": "fs",
+  "budgets": {
+    "totalBytes": { "limit": 1048576, "severity": "error" },
+    "assetBytes": { "limit": 524288, "severity": "warning" },
+    "maxFileBytes": { "limit": 262144, "severity": "warning" },
+    "groups": [
+      { "name": "scripts", "extensions": [".js", ".ts"], "limit": 524288, "severity": "error" },
+      { "name": "styles", "extensions": [".wxss", ".css"], "limit": 262144, "severity": "warning" }
+    ]
+  },
+  "duplicates": { "enabled": true, "scope": "assets", "minBytes": 1, "severity": "warning" },
+  "references": { "enabled": true, "severity": "warning", "ignore": [] },
+  "failLevel": "error"
+}
