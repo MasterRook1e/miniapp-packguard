@@ -1,0 +1,94 @@
+{
+  "$schema": "https://raw.githubusercontent.com/MasterRook1e/maintainer-contracts/main/schemas/config.schema.json",
+  "version": 1,
+  "title": {
+    "pattern": "^(?:feat|fix|docs|test|refactor|perf|build|ci|chore)(?:\\([^)]+\\))?!?: .+",
+    "maxLength": 100,
+    "severity": "warning"
+  },
+  "requiredSections": [
+    {
+      "heading": "Summary",
+      "minChars": 40,
+      "severity": "error"
+    },
+    {
+      "heading": "Validation",
+      "minChars": 10,
+      "severity": "error"
+    },
+    {
+      "heading": "AI assistance",
+      "minChars": 10,
+      "severity": "warning"
+    }
+  ],
+  "checkboxes": [
+    {
+      "section": "Validation",
+      "minChecked": 1,
+      "severity": "error"
+    }
+  ],
+  "pathRules": [
+    {
+      "name": "public-surface-change",
+      "paths": [
+        "action.yml",
+        "bin/**",
+        "schemas/**",
+        "src/**"
+      ],
+      "requireSections": [
+        {
+          "heading": "Public API / configuration impact",
+          "minChars": 20
+        }
+      ],
+      "requireCheckedTexts": [
+        "tests added or updated"
+      ],
+      "severity": "error"
+    },
+    {
+      "name": "ci-or-input-boundary-change",
+      "paths": [
+        ".github/workflows/**",
+        "action.yml",
+        "src/cli.mjs",
+        "src/files.mjs"
+      ],
+      "requireSections": [
+        {
+          "heading": "Security impact",
+          "minChars": 20
+        }
+      ],
+      "requireCheckedTexts": [
+        "no private project data, credentials, or assets included"
+      ],
+      "severity": "error"
+    }
+  ],
+  "sizeRules": {
+    "maxFiles": {
+      "limit": 60,
+      "severity": "warning"
+    },
+    "maxAdditions": {
+      "limit": 2500,
+      "severity": "warning"
+    },
+    "maxDeletions": {
+      "limit": 2500,
+      "severity": "warning"
+    }
+  },
+  "aiDisclosure": {
+    "section": "AI assistance",
+    "required": true,
+    "minChars": 10,
+    "severity": "warning"
+  },
+  "failLevel": "error"
+}
