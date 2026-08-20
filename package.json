@@ -27,7 +27,8 @@
     "test": "node --test",
     "smoke": "node bin/miniapp-packguard.mjs audit --project-root examples/demo --config miniapp-packguard.config.json --format console",
     "pack:check": "npm pack --dry-run --ignore-scripts",
-    "verify": "npm run lint && npm test && npm run smoke && npm run pack:check"
+    "pack:test": "node scripts/test-packed-package.mjs",
+    "verify": "npm run lint && npm test && npm run smoke && npm run pack:check && npm run pack:test"
   },
   "keywords": [
     "miniapp",
