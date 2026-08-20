@@ -1,0 +1,17 @@
+{
+  "include": ["**/*"],
+  "exclude": ["node_modules/**", ".git/**"],
+  "budgets": {
+    "totalBytes": 2097152,
+    "maxFileBytes": 524288,
+    "groups": [
+      { "name": "scripts", "patterns": ["**/*.{js,mjs,cjs,ts}"], "maxBytes": 786432 },
+      { "name": "images", "patterns": ["**/*.{png,jpg,jpeg,webp,svg}"], "maxBytes": 524288 }
+    ]
+  },
+  "policy": {
+    "failOnUnusedAssets": true,
+    "failOnMissingReferences": true,
+    "failOnDuplicateAssets": false
+  }
+}
