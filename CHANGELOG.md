@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added a clean packed-tarball consumer test that validates the npm file allowlist,
+  installs the generated package into a temporary project, runs the installed CLI, and
+  imports the installed library API on every supported CI platform.
+
 ## 0.1.0
 
 - initial dependency-free CLI and library API
