@@ -1,5 +1,10 @@
 # MiniApp PackGuard
 
+[![CI](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/ci.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/ci.yml)
+[![Action smoke test](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/example.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/example.yml)
+[![Maintainer contracts](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/maintainer-contracts.yml/badge.svg)](https://github.com/MasterRook1e/miniapp-packguard/actions/workflows/maintainer-contracts.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A dependency-free Node.js CLI and GitHub Action for auditing mini-app packages before they become slow, oversized, fragile, or difficult to review.
 
 It is designed for WeChat Mini Programs and similar directory-based mini-app bundles, but it does not depend on a proprietary compiler or one vendor's project format.
@@ -101,6 +106,8 @@ steps:
       sarif_file: .packguard-reports/report.sarif
 ```
 
+The `v0` ref is the moving compatible major-version branch. Security-sensitive consumers may instead pin an immutable commit SHA.
+
 ## Git-tracked versus filesystem mode
 
 `git` mode audits only tracked files, which matches what a pull request or release would actually ship. `fs` mode recursively scans the directory and is useful before a repository exists or for generated staging directories.
@@ -123,13 +130,19 @@ console.log(report.summary);
 - `1`: policy findings failed the audit
 - `2`: configuration or runtime failure
 
+## Release assurance
+
+The repository tests both the source checkout and the exact npm tarball shape. `npm run verify` validates syntax and formatting, executes the unit suite and demo, checks the package manifest, packs an allowlisted tarball, installs it into a temporary clean consumer, runs the installed CLI, verifies its report, and imports the installed library API.
+
+The same verification runs on Node.js 20 and 22 across Linux, Windows, and macOS. A checked-out composite-action smoke test and CodeQL analysis run independently. See [docs/RELEASE_ASSURANCE.md](docs/RELEASE_ASSURANCE.md) for the evidence boundary and remaining release steps.
+
 ## Design boundaries
 
 PackGuard does not compile vendor templates, emulate devices, infer runtime reachability, or claim that a referenced asset is legally distributable. It audits repository/package structure and deterministic static evidence.
 
 ## Status
 
-`0.1.0` is an initial public-ready implementation. The code includes tests, a zero-dependency CLI, JSON Schema, SARIF, a composite GitHub Action, and a three-platform CI matrix. It has not yet been published to npm.
+`0.1.0` is an initial public-ready implementation. The code includes tests, a zero-dependency CLI, JSON Schema, SARIF, a composite GitHub Action, packed-tarball consumer validation, path-aware maintainer policy, and a three-platform CI matrix. It has not yet been published to npm, and no third-party adoption or download count is claimed.
 
 ## License
 
