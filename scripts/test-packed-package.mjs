@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
-const NPM = process.platform === "win32" ? "npm.cmd" : "npm";
+const NPM_CLI = process.env.npm_execpath;
 const REQUIRED_PACKAGE_PATHS = new Set([
   "LICENSE",
   "README.md",
@@ -15,6 +15,10 @@ const REQUIRED_PACKAGE_PATHS = new Set([
   "schemas/config.schema.json",
   "src/index.mjs"
 ]);
+
+if (!NPM_CLI) {
+  throw new Error("npm_execpath is unavailable; run this check through `npm run pack:test`");
+}
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -31,6 +35,10 @@ function run(command, args, options = {}) {
   return result;
 }
 
+function runNpm(args, options = {}) {
+  return run(process.execPath, [NPM_CLI, ...args], options);
+}
+
 function isAllowedPackagePath(packagePath) {
   return ["bin/", "schemas/", "src/"].some((prefix) => packagePath.startsWith(prefix)) ||
     ["LICENSE", "README.md", "SECURITY.md", "action.yml", "package.json"].includes(packagePath);
@@ -40,7 +48,7 @@ const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "miniapp-packguard-cons
 let tarballPath = null;
 
 try {
-  const packed = run(NPM, ["pack", "--json", "--ignore-scripts"], { cwd: ROOT });
+  const packed = runNpm(["pack", "--json", "--ignore-scripts"], { cwd: ROOT });
   const metadata = JSON.parse(packed.stdout)[0];
   if (!metadata?.filename || !Array.isArray(metadata.files)) {
     throw new Error("npm pack did not return the expected JSON metadata");
@@ -90,7 +98,7 @@ try {
     }, null, 2)}\n`,
   );
 
-  run(NPM, ["install", tarballPath, "--ignore-scripts", "--no-audit", "--no-fund"], {
+  runNpm(["install", tarballPath, "--ignore-scripts", "--no-audit", "--no-fund"], {
     cwd: consumerRoot
   });
 
