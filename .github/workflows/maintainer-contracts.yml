@@ -19,7 +19,7 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
 
       - name: Evaluate contracts
-        uses: MasterRook1e/maintainer-contracts@c09ea3fa4b3b85a722639b9638e8dba14522f300
+        uses: MasterRook1e/maintainer-contracts@602c3e16b8bbb81d69ee02d270a2d620b7216156
         with:
           config: maintainer-contracts.config.json
           token: ${{ github.token }}
