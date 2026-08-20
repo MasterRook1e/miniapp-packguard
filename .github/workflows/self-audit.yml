@@ -1,0 +1,22 @@
+name: Self audit
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  packguard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Audit this repository with PackGuard
+        run: node ./bin/miniapp-packguard.mjs --root . --config .github/packguard.self.json --format markdown --output packguard-report.md
+      - name: Publish job summary
+        if: always()
+        run: cat packguard-report.md >> "$GITHUB_STEP_SUMMARY"
