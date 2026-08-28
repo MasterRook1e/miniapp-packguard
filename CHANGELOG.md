@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- added optional `app.json`-style package topology analysis
+- added main-package, per-subpackage, and named package-root byte budgets
+- added route normalization, duplicate-route detection, required page-file checks, and tab-bar validation
+- added duplicate and overlapping subpackage-root detection with deterministic file ownership
+- added package metrics to JSON, console, and Markdown reports
+- exported the topology analyzer and normalization helpers through the public library API
+- added focused topology regressions, configuration-boundary tests, demo coverage, and packed-consumer coverage
+
 ## 0.1.1
 
 - repaired and hardened the repository's self-audit workflow
