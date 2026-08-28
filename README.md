@@ -186,7 +186,7 @@ PackGuard does not compile vendor templates, emulate devices, execute applicatio
 
 ## Status
 
-`0.1.1` is the latest tagged release. `main` additionally contains an unreleased package-topology audit with focused tests, report integration, schema support, and packed-consumer coverage. The package has not yet been published to npm, and no third-party adoption or download count is claimed.
+`0.2.0` is the latest tagged release. It adds deterministic package-topology analysis, main/subpackage ownership and budgets, focused route and boundary tests, report integration, and packed-consumer verification while retaining the zero-dependency CLI, JSON Schema, SARIF, composite GitHub Action, self-audit, path-aware maintainer policy, and three-platform CI matrix. The package has not yet been published to npm, and no third-party adoption or download count is claimed.
 
 ## License
 

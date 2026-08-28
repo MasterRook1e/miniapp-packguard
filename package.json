@@ -1,6 +1,6 @@
 {
   "name": "miniapp-packguard",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Dependency-free package, topology, asset, duplicate, collision, and regression auditing for mini apps.",
   "type": "module",
   "bin": {
