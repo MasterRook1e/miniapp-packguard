@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0
+
 - added optional `app.json`-style package topology analysis
 - added main-package, per-subpackage, and named package-root byte budgets
 - added route normalization, duplicate-route detection, required page-file checks, and tab-bar validation
