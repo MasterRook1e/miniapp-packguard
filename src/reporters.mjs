@@ -1,13 +1,26 @@
 import path from "node:path";
 import { escapeMarkdown, formatBytes, stableStringify } from "./util.mjs";
 
+function topologyPackages(result) {
+  if (!result.topology?.enabled || !result.topology.mainPackage) return [];
+  return [result.topology.mainPackage, ...(result.topology.subpackages || [])];
+}
+
 export function renderConsole(result) {
   const lines = [
     `MiniApp PackGuard ${result.tool.version}`,
     `Root: ${result.root} (${result.mode} mode)`,
-    `Files: ${result.metrics.fileCount} | Total: ${formatBytes(result.metrics.totalBytes)} | Assets: ${formatBytes(result.metrics.assetBytes)} | Text: ${formatBytes(result.metrics.textBytes)}`,
-    `Issues: ${result.summary.errors} error(s), ${result.summary.warnings} warning(s), ${result.summary.notes} note(s)`
+    `Files: ${result.metrics.fileCount} | Total: ${formatBytes(result.metrics.totalBytes)} | Assets: ${formatBytes(result.metrics.assetBytes)} | Text: ${formatBytes(result.metrics.textBytes)}`
   ];
+  const packages = topologyPackages(result);
+  if (packages.length) {
+    const subpackages = packages.slice(1);
+    const subpackageBytes = subpackages.reduce((sum, entry) => sum + entry.totalBytes, 0);
+    lines.push(
+      `Packages: Main ${formatBytes(packages[0].totalBytes)} | Subpackages: ${subpackages.length} / ${formatBytes(subpackageBytes)} | Routes: ${result.topology.routes.length}`
+    );
+  }
+  lines.push(`Issues: ${result.summary.errors} error(s), ${result.summary.warnings} warning(s), ${result.summary.notes} note(s)`);
   if (result.issues.length) {
     lines.push("");
     for (const issue of result.issues) {
@@ -37,10 +50,28 @@ export function renderMarkdown(result) {
     `| Errors | ${result.summary.errors} |`,
     `| Warnings | ${result.summary.warnings} |`,
     `| Notes | ${result.summary.notes} |`,
-    "",
-    "## Findings",
     ""
   ];
+
+  const packages = topologyPackages(result);
+  if (packages.length) {
+    lines.push(
+      "## Package topology",
+      "",
+      `Declared routes: ${result.topology.routes.length}; tab-bar routes: ${result.topology.tabBarRoutes.length}.`,
+      "",
+      "| Package | Root | Pages | Files | Total bytes | Text bytes | Asset bytes | Other bytes |",
+      "|---|---|---:|---:|---:|---:|---:|---:|"
+    );
+    for (const entry of packages) {
+      lines.push(
+        `| ${escapeMarkdown(entry.name)} | \`${escapeMarkdown(entry.root || ".")}\` | ${entry.pageCount} | ${entry.fileCount} | ${entry.totalBytes} | ${entry.textBytes} | ${entry.assetBytes} | ${entry.otherBytes} |`
+      );
+    }
+    lines.push("");
+  }
+
+  lines.push("## Findings", "");
   if (!result.issues.length) lines.push("No findings.");
   else {
     lines.push("| Severity | Rule | Path | Message |", "|---|---|---|---|");

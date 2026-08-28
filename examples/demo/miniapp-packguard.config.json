@@ -12,6 +12,14 @@
       { "name": "styles", "extensions": [".wxss", ".css"], "limit": 262144, "severity": "warning" }
     ]
   },
+  "topology": {
+    "enabled": true,
+    "manifest": "app.json",
+    "requiredPageExtensions": [".wxml"],
+    "mainPackageBytes": { "limit": 1048576, "severity": "error" },
+    "subpackageBytes": { "limit": 524288, "severity": "error" },
+    "packageBudgets": []
+  },
   "duplicates": { "enabled": true, "scope": "assets", "minBytes": 1, "severity": "warning" },
   "references": { "enabled": true, "severity": "warning", "ignore": [] },
   "failLevel": "error"

@@ -15,7 +15,70 @@
     "assetExtensions": { "type": "array", "items": { "type": "string" } },
     "aliases": { "type": "object", "additionalProperties": { "type": "string" } },
     "requiredFiles": { "type": "array", "items": { "type": "string" } },
+    "topology": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "manifest": { "type": "string", "minLength": 1 },
+        "severity": { "$ref": "#/$defs/severity" },
+        "requiredPageExtensions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "mainPackageBytes": { "$ref": "#/$defs/nullableBudget" },
+        "subpackageBytes": { "$ref": "#/$defs/nullableBudget" },
+        "packageBudgets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "root"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+              },
+              "root": { "type": "string" },
+              "limit": { "type": "number", "minimum": 0 },
+              "severity": { "$ref": "#/$defs/severity" },
+              "budget": { "$ref": "#/$defs/budget" }
+            },
+            "anyOf": [
+              { "required": ["limit"] },
+              { "required": ["budget"] }
+            ]
+          }
+        }
+      }
+    },
     "failLevel": { "enum": ["note", "warning", "error", "off"] }
+  },
+  "$defs": {
+    "severity": {
+      "enum": ["note", "warning", "error"]
+    },
+    "budget": {
+      "oneOf": [
+        { "type": "number", "minimum": 0 },
+        {
+          "type": "object",
+          "required": ["limit"],
+          "additionalProperties": false,
+          "properties": {
+            "limit": { "type": "number", "minimum": 0 },
+            "severity": { "$ref": "#/$defs/severity" }
+          }
+        }
+      ]
+    },
+    "nullableBudget": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/budget" }
+      ]
+    }
   },
   "additionalProperties": true
 }

@@ -2,6 +2,7 @@ import path from "node:path";
 import { compileGlobs, matchesAny } from "./glob.mjs";
 import { discoverFiles } from "./files.mjs";
 import { analyzeReferences } from "./references.mjs";
+import { analyzePackageTopology } from "./topology.mjs";
 import { compareBaseline, readBaseline } from "./baseline.mjs";
 import { REPORT_SCHEMA_VERSION, TOOL_NAME, TOOL_VERSION } from "./version.mjs";
 import { makeIssue, sha256File, shouldFail } from "./util.mjs";
@@ -147,8 +148,11 @@ export async function auditProject({ projectRoot, scanRoot, config, changedSince
   const discovery = await discoverFiles({ projectRoot, scanRoot, config, changedSince });
   const files = discovery.files;
   const metrics = calculateMetrics(files, config);
-  const references = await analyzeReferences(files, config);
-  const duplicates = await detectDuplicates(files, config);
+  const [references, duplicates, topology] = await Promise.all([
+    analyzeReferences(files, config),
+    detectDuplicates(files, config),
+    analyzePackageTopology({ scanRoot, files, config })
+  ]);
   const resultFiles = files.map((file) => ({
     path: file.relativePath,
     projectPath: file.projectRelative,
@@ -163,6 +167,7 @@ export async function auditProject({ projectRoot, scanRoot, config, changedSince
     ...requiredFileIssues(files, config),
     ...applyBudgets(files, metrics, config),
     ...duplicates.issues,
+    ...topology.issues,
     ...references.unreferenced.map((assetPath) => makeIssue({
       ruleId: "asset-unreferenced",
       severity: config.references.severity,
@@ -189,6 +194,7 @@ export async function auditProject({ projectRoot, scanRoot, config, changedSince
     metrics,
     files: resultFiles,
     duplicates: duplicates.groups,
+    topology: topology.report,
     references: {
       referencedAssets: [...references.referencedBy.values()].filter((refs) => refs.length > 0).length,
       unreferencedAssets: references.unreferenced,

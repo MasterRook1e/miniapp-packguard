@@ -13,7 +13,8 @@ const REQUIRED_PACKAGE_PATHS = new Set([
   "bin/miniapp-packguard.mjs",
   "package.json",
   "schemas/config.schema.json",
-  "src/index.mjs"
+  "src/index.mjs",
+  "src/topology.mjs"
 ]);
 
 if (!NPM_CLI) {
@@ -68,6 +69,7 @@ try {
 
   const consumerRoot = path.join(tempRoot, "consumer");
   await fs.mkdir(path.join(consumerRoot, "miniprogram", "images"), { recursive: true });
+  await fs.mkdir(path.join(consumerRoot, "miniprogram", "pages", "index"), { recursive: true });
   await fs.writeFile(
     path.join(consumerRoot, "package.json"),
     `${JSON.stringify({ name: "packguard-packed-consumer", private: true, type: "module" }, null, 2)}\n`,
@@ -75,6 +77,14 @@ try {
   await fs.writeFile(
     path.join(consumerRoot, "miniprogram", "app.js"),
     "const icon = '/images/icon.svg';\nconsole.log(icon);\n",
+  );
+  await fs.writeFile(
+    path.join(consumerRoot, "miniprogram", "app.json"),
+    `${JSON.stringify({ pages: ["pages/index/index"] }, null, 2)}\n`,
+  );
+  await fs.writeFile(
+    path.join(consumerRoot, "miniprogram", "pages", "index", "index.wxml"),
+    "<image src=\"/images/icon.svg\" />\n",
   );
   await fs.writeFile(
     path.join(consumerRoot, "miniprogram", "images", "icon.svg"),
@@ -91,6 +101,14 @@ try {
         assetBytes: { limit: 524288, severity: "warning" },
         maxFileBytes: { limit: 262144, severity: "warning" },
         groups: []
+      },
+      topology: {
+        enabled: true,
+        manifest: "app.json",
+        requiredPageExtensions: [".wxml"],
+        mainPackageBytes: { limit: 1048576, severity: "error" },
+        subpackageBytes: { limit: 524288, severity: "error" },
+        packageBudgets: []
       },
       duplicates: { enabled: true, scope: "assets", minBytes: 1, severity: "warning" },
       references: { enabled: true, severity: "warning", ignore: [] },
@@ -125,11 +143,15 @@ try {
   if (!report.summary?.passed || report.tool?.name !== "miniapp-packguard") {
     throw new Error("installed CLI did not produce a passing PackGuard report");
   }
+  if (!report.topology?.mainPackage ||
+      !report.topology.routes?.includes("pages/index/index")) {
+    throw new Error("installed CLI did not preserve package-topology evidence");
+  }
 
   run(process.execPath, [
     "--input-type=module",
     "--eval",
-    "import { normalizeConfig } from 'miniapp-packguard'; const c = normalizeConfig({ version: 1, root: 'miniprogram', mode: 'fs' }); if (c.root !== 'miniprogram') process.exit(1);"
+    "import { normalizeConfig, normalizeTopologyRoute } from 'miniapp-packguard'; const c = normalizeConfig({ version: 1, root: 'miniprogram', mode: 'fs', topology: { enabled: true } }); if (!c.topology.enabled || normalizeTopologyRoute('/pages/index/index.wxml') !== 'pages/index/index') process.exit(1);"
   ], { cwd: consumerRoot });
 
   process.stdout.write(

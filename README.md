@@ -13,6 +13,10 @@ It is designed for WeChat Mini Programs and similar directory-based mini-app bun
 ## What it checks
 
 - total, text, asset, per-file, and custom-group byte budgets
+- main-package, subpackage, and named package-root budgets
+- page, subpackage, and tab-bar topology from an `app.json`-style manifest
+- declared routes missing required page files
+- duplicate and overlapping subpackage declarations
 - exact duplicate content using SHA-256
 - assets that are not referenced by scanned source, template, style, or JSON files
 - asset-like references that cannot be resolved
@@ -23,11 +27,11 @@ It is designed for WeChat Mini Programs and similar directory-based mini-app bun
 - changed-file marking relative to a Git ref
 - symlink boundary safety
 
-Reports are deterministic and can be written as console text, JSON, Markdown, or SARIF 2.1.0.
+Reports are deterministic and can be written as console text, JSON, Markdown, or SARIF 2.1.0. JSON and Markdown include a package table when topology analysis is enabled.
 
 ## Why another package auditor?
 
-Mini-app performance problems often come from several small repository hygiene failures rather than one large bug: duplicate images, forgotten assets, case-only filenames, a single unexpectedly large script, or gradual package growth that nobody notices in review.
+Mini-app performance problems often come from several small repository hygiene failures rather than one large bug: duplicate images, forgotten assets, case-only filenames, a single unexpectedly large script, gradual package growth, or a subpackage split that silently moves too much code back into the main bundle.
 
 PackGuard treats those as policy, not as an occasional manual cleanup task.
 
@@ -57,6 +61,21 @@ The generated configuration contains conservative example budgets. Replace them 
       { "name": "scripts", "extensions": [".js", ".ts"], "limit": 786432, "severity": "error" }
     ]
   },
+  "topology": {
+    "enabled": true,
+    "manifest": "app.json",
+    "requiredPageExtensions": [".wxml"],
+    "mainPackageBytes": { "limit": 2097152, "severity": "error" },
+    "subpackageBytes": { "limit": 2097152, "severity": "error" },
+    "packageBudgets": [
+      {
+        "name": "archive-package",
+        "root": "packages/archive",
+        "limit": 1048576,
+        "severity": "warning"
+      }
+    ]
+  },
   "baseline": {
     "path": ".packguard-baseline.json",
     "maxTotalGrowthBytes": 131072,
@@ -66,6 +85,24 @@ The generated configuration contains conservative example budgets. Replace them 
   "failLevel": "error"
 }
 ```
+
+The numeric package limits above are examples of repository policy, not claims about a vendor's current official limits.
+
+## Package topology
+
+When enabled, PackGuard reads `pages`, `subPackages` or `subpackages`, and `tabBar.list` from the configured manifest. It normalizes routes, rejects boundary escapes, checks required page files, assigns selected files to the main package or one non-overlapping subpackage root, and applies package-specific byte budgets.
+
+```json
+{
+  "topology": {
+    "enabled": true,
+    "manifest": "app.json",
+    "requiredPageExtensions": [".wxml", ".wxss"]
+  }
+}
+```
+
+An empty `requiredPageExtensions` array validates declarations and package ownership without imposing a framework-specific page-file convention. See [Package topology audit](docs/PACKAGE_TOPOLOGY.md).
 
 ## Baselines
 
@@ -118,12 +155,18 @@ PackGuard never follows symlinks by default. When explicitly enabled, symlink ta
 ## Library API
 
 ```js
-import { auditProject, loadConfig } from "miniapp-packguard";
+import {
+  analyzePackageTopology,
+  auditProject,
+  loadConfig
+} from "miniapp-packguard";
 
 const loaded = await loadConfig({ projectRoot: process.cwd() });
 const report = await auditProject(loaded);
-console.log(report.summary);
+console.log(report.topology);
 ```
+
+`analyzePackageTopology` is also exported for tools that already own a normalized PackGuard file inventory.
 
 ## Exit codes
 
@@ -139,11 +182,11 @@ The same verification runs on Node.js 20 and 22 across Linux, Windows, and macOS
 
 ## Design boundaries
 
-PackGuard does not compile vendor templates, emulate devices, infer runtime reachability, or claim that a referenced asset is legally distributable. It audits repository/package structure and deterministic static evidence.
+PackGuard does not compile vendor templates, emulate devices, execute application code, infer runtime reachability, or claim that a referenced asset is legally distributable. Topology analysis verifies static declarations, selected-file ownership, required page files, and repository-defined budgets; it does not prove that a platform will accept a build.
 
 ## Status
 
-`0.1.1` repairs and hardens public self-auditing while retaining the zero-dependency CLI, JSON Schema, SARIF, composite GitHub Action, packed-tarball consumer validation, path-aware maintainer policy, and three-platform CI matrix. It has not yet been published to npm, and no third-party adoption or download count is claimed.
+`0.1.1` is the latest tagged release. `main` additionally contains an unreleased package-topology audit with focused tests, report integration, schema support, and packed-consumer coverage. The package has not yet been published to npm, and no third-party adoption or download count is claimed.
 
 ## License
 
