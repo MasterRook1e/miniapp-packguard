@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- validate baseline schema, canonical paths, safe byte counts, file inventory totals, and package-root identity before growth comparison
+- fail on an explicitly configured missing baseline instead of silently disabling growth checks
+- add corrupt-evidence, cross-root, zero-byte, prototype-like filename, and file-I/O regression coverage
+- document first-baseline generation and compatibility in `docs/BASELINE_INTEGRITY.md`
+
 ## 0.2.0
 
 - added optional `app.json`-style package topology analysis
